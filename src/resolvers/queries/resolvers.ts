@@ -9,7 +9,7 @@ const resolvers = {
     }
   },
   Mutation: {
-    createQuestion: async ({ texto }: { texto: string }) => {
+    createQuestion: async (parent: any, { texto }: { texto: string }): Promise<String> => {
       let defaultValue = "Default value"
       if (texto) defaultValue = texto
       return defaultValue
