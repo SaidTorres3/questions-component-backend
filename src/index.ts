@@ -29,17 +29,18 @@ createConnection({
   logging: false
 }).then(async connection => {
   let full_question = new Full_Question()
-  full_question.img = "https://images.trvl-media.com/hotels/54000000/53720000/53714500/53714404/1316f078_z.jpg"
-  const ñ = await connection.manager.save(full_question)
+  full_question.imgUrl = "https://images.trvl-media.com/hotels/54000000/53720000/53714500/53714404/1316f078_z.jpg"
+  const fullQuestion = await connection.manager.save(full_question)
   
   let question = new Question()
-  question.full_question = ñ.id
+  question.full_question = fullQuestion.uuid
+  
   question.es = "¿Cómo calificaría su experiencia en Hotel Palmeras? 🏨🌴"
   question.en = "How would you rate your experience in Hotel Palmeras ? 🏨🌴"
   await connection.manager.save(question)
 
   let answer = new Answer()
-  answer.full_question_id = ñ.id
+  answer.full_question = fullQuestion.uuid
   answer.value = JSON.stringify(5)
   answer.es = "Muy Buena 😀"
   answer.en = "Awesome 😀"

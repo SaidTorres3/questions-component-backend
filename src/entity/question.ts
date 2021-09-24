@@ -1,18 +1,24 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
+import { Field, ObjectType, Int } from "type-graphql";
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, RelationId } from "typeorm";
 import { Full_Question } from "./full_question";
 
+@ObjectType()
 @Entity()
 export class Question {
+  @Field(type => Int)
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field(type => String)
   @OneToOne(type => Full_Question)
-  @JoinColumn()
-  full_question: number;
+  @JoinColumn({referencedColumnName: "uuid"})
+  full_question: string;
 
+  @Field(type => String)
   @Column("text")
   es: string;
   
+  @Field(type => String)
   @Column("text")
   en: string;
 }

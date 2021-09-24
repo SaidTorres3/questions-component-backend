@@ -17,11 +17,13 @@
   },
   "dependencies": {
     "apollo-server": "^3.3.0",
-    "graphql": "^15.5.3",
+    "class-validator": "^0.13.1",
+    "graphql": "^15.6.0",
     "graphql-type-json": "^0.3.2",
     "mariadb": "^2.5.4",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
     "typeorm": "^0.2.37"
   }
 }
