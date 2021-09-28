@@ -6,19 +6,19 @@ import { Question } from "../../entity/question";
 
 @InputType()
 class CreateFullQuestionInput {
-  @Field(type => String, { nullable: false })
-  imgUrl!: string;
+  @Field(type => String, { nullable: true })
+  imgUrl: string;
 }
 
 @ArgsType()
 class CreateFullQuestionArgs {
   @Field(type => CreateFullQuestionInput, { nullable: true })
-  input!: CreateFullQuestionInput;
+  input: CreateFullQuestionInput;
 }
 
 @ObjectType()
 class CreateFullQuestionPayload {
-  @Field(type => Int, { nullable: false })
+  @Field(type => ID, { nullable: false })
   createdUuid!: string;
 }
 
@@ -26,18 +26,18 @@ class CreateFullQuestionPayload {
 export class CreateFullQuestionMutation {
   @Mutation(type => CreateFullQuestionPayload, { nullable: false })
   async createFullQuestion(
-    connection: Connection,
     @Args() { input }: CreateFullQuestionArgs,
+    @Ctx() connection: Connection
   ): Promise<CreateFullQuestionPayload> {
     let full_question = new Full_Question()
-    full_question.imgUrl = "https://images.trvl-media.com/hotels/54000000/53720000/53714500/53714404/1316f078_z.jpg"
+    full_question.imgUrl = input.imgUrl
     const fullQuestion = await connection.manager.save(full_question)
 
     let question = new Question()
     question.full_question = fullQuestion.uuid
 
     question.es = "¿Cómo calificaría su experiencia en Hotel Palmeras? 🏨🌴"
-    question.en = "How would you rate your experience in Hotel Palmeras ? 🏨🌴"
+    question.en = "How would you rate your experience in Hotel Palmeras? 🏨🌴"
     await connection.manager.save(question)
 
     let answer = new Answer()
