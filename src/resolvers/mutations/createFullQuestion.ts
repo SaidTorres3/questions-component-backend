@@ -1,3 +1,4 @@
+import GraphQLJSON from "graphql-type-json";
 import { Args, ArgsType, Ctx, Field, Float, ID, InputType, Int, Mutation, ObjectType, Resolver } from "type-graphql";
 import { Connection } from "typeorm";
 import { Answer } from "../../entities/answer";
@@ -5,15 +6,39 @@ import { Full_Question } from "../../entities/full_question";
 import { Question } from "../../entities/question";
 
 @InputType()
+abstract class AnswerInterface {
+  @Field(type => GraphQLJSON)
+  value: any;
+  @Field(type => String)
+  es: string;
+  @Field(type => String)
+  en: string;
+}
+
+@InputType()
+abstract class QuestionInterface {
+  @Field(type => String)
+  es: string
+  @Field(type => String)
+  en: string
+}
+
+@InputType()
 class CreateFullQuestionInput {
   @Field(type => String, { nullable: true })
   imgUrl: string;
+
+  @Field(type => QuestionInterface)
+  questionParams: QuestionInterface
+
+  @Field(type => [AnswerInterface])
+  answersParams: AnswerInterface[]
 }
 
 @ArgsType()
 class CreateFullQuestionArgs {
   @Field(type => CreateFullQuestionInput, { nullable: true })
-  input?: CreateFullQuestionInput;
+  input: CreateFullQuestionInput;
 }
 
 @ObjectType()
@@ -30,7 +55,7 @@ export class CreateFullQuestionMutation {
     @Ctx() connection: Connection
   ): Promise<CreateFullQuestionPayload> {
     let full_question = new Full_Question()
-    if(input?.imgUrl) {
+    if (input.imgUrl) {
       full_question.imgUrl = input.imgUrl
     }
     const fullQuestion = await connection.manager.save(full_question)
@@ -38,16 +63,18 @@ export class CreateFullQuestionMutation {
     let question = new Question()
     question.full_question = fullQuestion.uuid
 
-    question.es = "¿Cómo calificaría su experiencia en Hotel Palmeras? 🏨🌴"
-    question.en = "How would you rate your experience in Hotel Palmeras? 🏨🌴"
+    question.es = input.questionParams.es
+    question.en = input.questionParams.en
     await connection.manager.save(question)
 
-    let answer = new Answer()
-    answer.full_question = fullQuestion.uuid
-    answer.value = JSON.stringify(5)
-    answer.es = "Muy Buena 😀"
-    answer.en = "Awesome 😀"
-    await connection.manager.save(answer)
+    input.answersParams.map(async (answerParams)=>{
+      let answer = new Answer()
+      answer.full_question = fullQuestion.uuid
+      answer.value = answerParams.value
+      answer.es = answerParams.es
+      answer.en = answerParams.en
+      await connection.manager.save(answer)
+    })
 
     return {
       createdUuid: fullQuestion.uuid,

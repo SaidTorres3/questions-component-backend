@@ -28,7 +28,42 @@ createConnection({
     console.log(`🚀  Server ready at ${url}`);
   });
 
-  const newElement = new CreateFullQuestionMutation()
-  newElement.createFullQuestion({ input: undefined }, connection)
+  const newQuestion = new CreateFullQuestionMutation()
+  newQuestion.createFullQuestion({
+    input: {
+      imgUrl: "https://images.trvl-media.com/hotels/54000000/53720000/53714500/53714404/1316f078_z.jpg",
+      questionParams: {
+        es: "¿Cómo calificaría su experiencia en Hotel Palmeras? 🏨🌴",
+        en: "How would you rate your experience in Hotel Palmeras? 🏨🌴"
+      },
+      answersParams: [
+        {
+          "value": 5,
+          "es": "Muy Buena 😀",
+          "en": "Awesome 😀"
+        },
+        {
+          "value": 4,
+          "es": "Buena 😊",
+          "en": "Good 😊"
+        },
+        {
+          "value": 3,
+          "es": "Regular 😐",
+          "en": "Regular 😐"
+        },
+        {
+          "value": 2,
+          "es": "Mala 😕",
+          "en": "Bad 😕"
+        },
+        {
+          "value": 1,
+          "es": "Muy mala 😠",
+          "en": "Very bad 😠"
+        }
+      ]
+    }
+  }, connection)
 
 }).catch(error => console.log(error));
