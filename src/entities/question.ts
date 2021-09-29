@@ -9,10 +9,10 @@ export class Question {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(type => String)
+  @Field(type => Full_Question)
   @OneToOne(type => Full_Question)
   @JoinColumn({referencedColumnName: "uuid"})
-  full_question: string;
+  full_question: Full_Question['uuid'];
 
   @Field(type => String)
   @Column("text")

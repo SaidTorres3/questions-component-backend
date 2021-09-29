@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany, RelationId } from "typeorm";
 import { Answer } from "./answer";
 import { Question } from "./question";
 
@@ -16,7 +16,7 @@ export class Full_Question {
   uuid!: string;
 
   @Field({ nullable: true })
-  @Column("text")
+  @Column("text", { nullable: true })
   imgUrl: string;
 
   @Field(type => Question)
@@ -25,5 +25,5 @@ export class Full_Question {
 
   @Field(type => [Answer])
   @OneToMany(type => Answer, answer => answer.full_question)
-  answers!: Answer[];
+  answers: Answer[];
 }

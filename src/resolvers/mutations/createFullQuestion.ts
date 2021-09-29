@@ -1,8 +1,8 @@
 import { Args, ArgsType, Ctx, Field, Float, ID, InputType, Int, Mutation, ObjectType, Resolver } from "type-graphql";
 import { Connection } from "typeorm";
-import { Answer } from "../../entity/answer";
-import { Full_Question } from "../../entity/full_question";
-import { Question } from "../../entity/question";
+import { Answer } from "../../entities/answer";
+import { Full_Question } from "../../entities/full_question";
+import { Question } from "../../entities/question";
 
 @InputType()
 class CreateFullQuestionInput {
@@ -13,7 +13,7 @@ class CreateFullQuestionInput {
 @ArgsType()
 class CreateFullQuestionArgs {
   @Field(type => CreateFullQuestionInput, { nullable: true })
-  input: CreateFullQuestionInput;
+  input?: CreateFullQuestionInput;
 }
 
 @ObjectType()
@@ -30,7 +30,9 @@ export class CreateFullQuestionMutation {
     @Ctx() connection: Connection
   ): Promise<CreateFullQuestionPayload> {
     let full_question = new Full_Question()
-    full_question.imgUrl = input.imgUrl
+    if(input?.imgUrl) {
+      full_question.imgUrl = input.imgUrl
+    }
     const fullQuestion = await connection.manager.save(full_question)
 
     let question = new Question()

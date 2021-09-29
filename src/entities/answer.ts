@@ -1,5 +1,5 @@
 import { Field, ObjectType, Int } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne, RelationId } from "typeorm";
 import { Full_Question } from "./full_question";
 
 @ObjectType()
@@ -9,10 +9,10 @@ export class Answer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(type => String)
+  @Field(type => Full_Question)
   @ManyToOne(type => Full_Question, full_question => full_question.answers)
   @JoinColumn({ referencedColumnName: "uuid" })
-  full_question: string;
+  full_question: Full_Question['uuid'];
 
   @Field(type => String)
   @Column('text')

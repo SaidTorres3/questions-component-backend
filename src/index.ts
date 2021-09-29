@@ -1,13 +1,10 @@
 import "reflect-metadata";
 import { ApolloServer } from 'apollo-server'
 import { buildSchema } from "type-graphql";
-
 import { createConnection } from "typeorm";
-import { Full_Question } from "./entity/full_question";
-import { Question } from "./entity/question";
-import { Answer } from "./entity/answer";
-
+import { Entities } from "./entities/entities";
 import { Resolvers } from "./resolvers/resolvers";
+import { CreateFullQuestionMutation } from "./resolvers/mutations/createFullQuestion";
 
 createConnection({
   type: "mysql",
@@ -18,11 +15,7 @@ createConnection({
   charset: "utf8mb4",
   database: "questions_component",
   dropSchema: true,
-  entities: [
-    Full_Question,
-    Question,
-    Answer
-  ],
+  entities: Entities,
   synchronize: true,
   logging: false
 }).then(async connection => {
@@ -34,5 +27,8 @@ createConnection({
   server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
   });
+
+  const newElement = new CreateFullQuestionMutation()
+  newElement.createFullQuestion({ input: undefined }, connection)
 
 }).catch(error => console.log(error));
