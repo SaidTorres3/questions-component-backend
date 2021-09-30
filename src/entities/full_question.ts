@@ -1,6 +1,7 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany, RelationId } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany } from "typeorm";
 import { Answer } from "./answer";
+import { PostedAnswer } from "./posted_answer";
 import { Question } from "./question";
 
 @ObjectType()
@@ -26,4 +27,8 @@ export class Full_Question {
   @Field(type => [Answer])
   @OneToMany(type => Answer, answer => answer.full_question)
   answers: Answer[];
+
+  @Field(type => [PostedAnswer])
+  @OneToMany(type => PostedAnswer, postedAnswer => postedAnswer.full_question, { nullable: true })
+  postedAnswers: PostedAnswer[];
 }

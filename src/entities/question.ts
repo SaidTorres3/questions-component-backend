@@ -12,7 +12,7 @@ export class Question {
   @Field(type => Full_Question)
   @OneToOne(type => Full_Question)
   @JoinColumn({referencedColumnName: "uuid"})
-  full_question: Full_Question['uuid'];
+  full_question: Full_Question;
 
   @Field(type => String)
   @Column("text")
