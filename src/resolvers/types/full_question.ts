@@ -21,12 +21,12 @@ export class Full_Question_Resolver implements ResolverInterface<Full_Question> 
     @Root() root: Full_Question,
     @Ctx() connection: Connection
   ) {
-    const question = await connection.manager.findOne(Question, { where: { full_question: root } })
-    return question!
+    const question = await connection.manager.findOneOrFail(Question, { where: { full_question: root } })
+    return question
   }
 
   @FieldResolver()
-  async postedAnswers(
+  async posted_answers(
     @Root() root: Full_Question,
     @Ctx() connection: Connection
   ) {

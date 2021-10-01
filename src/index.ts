@@ -28,6 +28,5 @@ createConnection({
     console.log(`🚀  Server ready at ${url}`);
   });
 
- Seed(connection)
-
+  Seed(connection)
 }).catch(error => console.log(error));

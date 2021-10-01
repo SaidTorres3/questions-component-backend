@@ -15,13 +15,8 @@ export class Respondent {
   @Index('uuid', { unique: true })
   uuid!: string;
 
-  @Field(type => Full_Question)
-  @ManyToOne(type => Full_Question, full_question => full_question.postedAnswers)
-  @JoinColumn({ referencedColumnName: "uuid" })
-  full_question!: Full_Question;
-
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, posted_answer => posted_answer.respondent, {nullable: true})
   @JoinColumn({ referencedColumnName: "uuid" })
-  posted_answer: [Posted_Answer];
+  posted_answers: [Posted_Answer];
 }

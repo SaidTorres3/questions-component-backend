@@ -30,5 +30,5 @@ export class Full_Question {
 
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, postedAnswer => postedAnswer.full_question, { nullable: true })
-  postedAnswers: Posted_Answer[];
+  posted_answers: Posted_Answer[];
 }

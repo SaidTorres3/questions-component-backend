@@ -29,20 +29,26 @@ export class CreatePostedAnswerMutation {
     @Args() { input }: CreatePostedAnswerArgs,
     @Ctx() connection: Connection
   ): Promise<CreatePostedAnswerPayload> {
-
     let respondent = new Respondent()
     respondent = await connection.manager.save(Respondent, respondent)
-
+    
     for (const answerUuid of input.answersUuid) {
-      const answer_to_post = new Posted_Answer()
+      let posted_answer = new Posted_Answer()
       const answer = await connection.manager.findOne(Answer, { where: { uuid: answerUuid }, relations: ["full_question"] })
       if (answer) {
-        answer_to_post.answer = answer
-        answer_to_post.full_question = answer.full_question
-        answer_to_post.respondent = respondent
-        await connection.manager.save(answer_to_post)
+        posted_answer.answer = answer
+        posted_answer.full_question = answer.full_question
+        posted_answer.respondent = respondent
+        posted_answer = await connection.manager.save(posted_answer)
+        if (respondent.posted_answers) {
+          respondent.posted_answers.push(posted_answer)
+        } else {
+          respondent.posted_answers = [posted_answer]
+        }
+        await connection.manager.save(Respondent, respondent)
       }
     }
+    
 
     return {
       response: "Answers posted sucessfully!"
