@@ -34,10 +34,10 @@ export class CreatePostedAnswerMutation {
     
     for (const answerUuid of input.answersUuid) {
       let posted_answer = new Posted_Answer()
-      const answer = await connection.manager.findOne(Answer, { where: { uuid: answerUuid }, relations: ["full_question"] })
+      const answer = await connection.manager.findOne(Answer, { where: { uuid: answerUuid }, relations: ["question"] })
       if (answer) {
         posted_answer.answer = answer
-        posted_answer.full_question = answer.full_question
+        posted_answer.question = answer.question
         posted_answer.respondent = respondent
         posted_answer = await connection.manager.save(posted_answer)
         if (respondent.posted_answers) {

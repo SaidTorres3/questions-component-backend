@@ -2,7 +2,6 @@ import GraphQLJSON from "graphql-type-json";
 import { Args, ArgsType, Ctx, Field, Float, ID, InputType, Int, Mutation, ObjectType, Resolver } from "type-graphql";
 import { Connection } from "typeorm";
 import { Answer } from "../../entities/answer";
-import { Full_Question } from "../../entities/full_question";
 import { Question } from "../../entities/question";
 
 @InputType()
@@ -24,7 +23,7 @@ abstract class QuestionInterface {
 }
 
 @InputType()
-class CreateFullQuestionInput {
+class CreateQuestionInput {
   @Field(type => String, { nullable: true })
   imgUrl: string;
 
@@ -36,46 +35,42 @@ class CreateFullQuestionInput {
 }
 
 @ArgsType()
-class CreateFullQuestionArgs {
-  @Field(type => CreateFullQuestionInput, { nullable: true })
-  input: CreateFullQuestionInput;
+class CreateQuestionArgs {
+  @Field(type => CreateQuestionInput, { nullable: true })
+  input: CreateQuestionInput;
 }
 
 @ObjectType()
-class CreateFullQuestionPayload {
+class CreateQuestionPayload {
   @Field(type => ID, { nullable: false })
   createdUuid!: string;
 }
 
 @Resolver()
-export class CreateFullQuestionMutation {
-  @Mutation(type => CreateFullQuestionPayload, { nullable: false })
-  async createFullQuestion(
-    @Args() { input }: CreateFullQuestionArgs,
+export class CreateQuestionMutation {
+  @Mutation(type => CreateQuestionPayload, { nullable: false })
+  async createQuestion(
+    @Args() { input }: CreateQuestionArgs,
     @Ctx() connection: Connection
-  ): Promise<CreateFullQuestionPayload> {
-    let full_question = new Full_Question()
-    if (input.imgUrl) {
-      full_question.imgUrl = input.imgUrl
-    }
-    const fullQuestion = await connection.manager.save(full_question)
-
+  ): Promise<CreateQuestionPayload> {
     let question = new Question()
-    question.full_question = fullQuestion
-
+    if (input.imgUrl) {
+      question.imgUrl = input.imgUrl
+    }    
     question.es = input.questionParams.es
     question.en = input.questionParams.en
-    await connection.manager.save(question)
-
+    
+    const filled_question = await connection.manager.save(question)
+    
     for (const answerParams of input.answersParams) {
       let answer = new Answer()
-      answer.full_question = fullQuestion
+      answer.question = filled_question
       answer.value = answerParams.value
       answer.es = answerParams.es
       answer.en = answerParams.en
       await connection.manager.save(answer)
     }
 
-    return { createdUuid: fullQuestion.uuid}
+    return { createdUuid: filled_question.uuid}
   }
 }

@@ -1,7 +1,7 @@
 import GraphQLJSON from "graphql-type-json";
 import { Field, ObjectType, Int, ID } from "type-graphql";
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, OneToMany } from "typeorm";
-import { Full_Question } from "./full_question";
+import { Question } from "./question";
 import { Posted_Answer } from "./posted_answer";
 
 @ObjectType()
@@ -16,10 +16,10 @@ export class Answer {
   @Index('uuid', { unique: true })
   uuid!: string;
 
-  @Field(type => Full_Question)
-  @ManyToOne(type => Full_Question, full_question => full_question.answers)
+  @Field(type => Question)
+  @ManyToOne(type => Question, question => question.answers)
   @JoinColumn({ referencedColumnName: "uuid" })
-  full_question!: Full_Question;
+  question!: Question;
 
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, postedAnswer => postedAnswer.answer, { nullable: true })

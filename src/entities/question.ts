@@ -1,19 +1,24 @@
-import { Field, ObjectType, Int } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, RelationId } from "typeorm";
-import { Full_Question } from "./full_question";
+import { Field, ID, Int, ObjectType } from "type-graphql";
+import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany } from "typeorm";
+import { Answer } from "./answer";
+import { Posted_Answer } from "./posted_answer";
 
 @ObjectType()
 @Entity()
 export class Question {
   @Field(type => Int)
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
-  @Field(type => Full_Question)
-  @OneToOne(type => Full_Question)
-  @JoinColumn({referencedColumnName: "uuid"})
-  full_question: Full_Question;
+  @Field(type => ID)
+  @Column('uuid', { nullable: false, generated: 'uuid' })
+  @Index('uuid', { unique: true })
+  uuid!: string;
 
+  @Field({ nullable: true })
+  @Column("text", { nullable: true })
+  imgUrl: string;
+  
   @Field(type => String)
   @Column("text")
   es: string;
@@ -21,4 +26,12 @@ export class Question {
   @Field(type => String)
   @Column("text")
   en: string;
+
+  @Field(type => [Answer])
+  @OneToMany(type => Answer, answer => answer.question)
+  answers: Answer[];
+
+  @Field(type => [Posted_Answer])
+  @OneToMany(type => Posted_Answer, postedAnswer => postedAnswer.question, { nullable: true })
+  posted_answers: Posted_Answer[];
 }

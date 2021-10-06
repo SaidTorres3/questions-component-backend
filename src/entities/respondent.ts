@@ -1,6 +1,5 @@
 import { Field, ObjectType, Int, ID } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany, Column, Index } from "typeorm";
-import { Full_Question } from "./full_question";
+import { Entity, PrimaryGeneratedColumn, JoinColumn, OneToMany, Column, Index } from "typeorm";
 import { Posted_Answer } from "./posted_answer";
 
 @ObjectType()

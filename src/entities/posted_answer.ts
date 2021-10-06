@@ -1,7 +1,7 @@
 import { Field, ObjectType, Int, ID } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, OneToMany, RelationId } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, RelationId } from "typeorm";
 import { Answer } from "./answer";
-import { Full_Question } from "./full_question";
+import { Question } from "./question";
 import { Respondent } from "./respondent";
 
 @ObjectType()
@@ -16,12 +16,12 @@ export class Posted_Answer {
   @Index('uuid', { unique: true })
   uuid!: string;
 
-  @Field(type => Full_Question)
-  @ManyToOne(type => Full_Question, full_question => full_question.posted_answers, { nullable: false })
+  @Field(type => Question)
+  @ManyToOne(type => Question, question => question.posted_answers, { nullable: false })
   @JoinColumn({ referencedColumnName: "uuid" })
-  full_question!: Full_Question;
-  @RelationId("full_question")
-  full_questionUuid: Full_Question['uuid']
+  question!: Question;
+  @RelationId("question")
+  questionUuid: Question['uuid']
 
   @Field(type => Answer)
   @ManyToOne(type => Answer, answer => answer.posted_answers, { nullable: false })

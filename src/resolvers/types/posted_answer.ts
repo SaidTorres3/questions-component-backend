@@ -1,7 +1,7 @@
 import { Ctx, FieldResolver, Resolver, ResolverInterface, Root } from "type-graphql";
 import { Connection } from "typeorm";
 import { Answer } from "../../entities/answer";
-import { Full_Question } from "../../entities/full_question";
+import { Question } from "../../entities/question";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
 
@@ -26,11 +26,11 @@ export class Posted_Answers_Resolver implements ResolverInterface<Posted_Answer>
   }
 
   @FieldResolver()
-  async full_question(
+  async question(
     @Root() root: Posted_Answer,
     @Ctx() connection: Connection
   ) {
-    const full_question = await connection.manager.findOneOrFail(Full_Question, { where: { uuid: root.full_questionUuid } })
-    return full_question
+    const question = await connection.manager.findOneOrFail(Question, { where: { uuid: root.questionUuid } })
+    return question
   }
 }

@@ -1,7 +1,7 @@
-import { CreateFullQuestionMutation } from "./createFullQuestion";
+import { CreateQuestionMutation } from "./createQuestion";
 import { CreatePostedAnswerMutation } from "./createPostedAnswers"
 
 export const Mutations = [
-  CreateFullQuestionMutation,
+  CreateQuestionMutation,
   CreatePostedAnswerMutation
 ] as const
