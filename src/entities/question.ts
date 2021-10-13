@@ -6,7 +6,6 @@ import { Posted_Answer } from "./posted_answer";
 @ObjectType()
 @Entity()
 export class Question {
-  @Field(type => Int)
   @PrimaryGeneratedColumn()
   id!: number;
 

@@ -15,20 +15,15 @@ abstract class AnswerInterface {
 }
 
 @InputType()
-abstract class QuestionInterface {
-  @Field(type => String)
-  es: string
-  @Field(type => String)
-  en: string
-}
-
-@InputType()
 class CreateQuestionInput {
   @Field(type => String, { nullable: true })
   imgUrl: string;
 
-  @Field(type => QuestionInterface)
-  questionParams: QuestionInterface
+  @Field(type => String)
+  es: string
+
+  @Field(type => String)
+  en: string
 
   @Field(type => [AnswerInterface])
   answersParams: AnswerInterface[]
@@ -57,8 +52,8 @@ export class CreateQuestionMutation {
     if (input.imgUrl) {
       question.imgUrl = input.imgUrl
     }    
-    question.es = input.questionParams.es
-    question.en = input.questionParams.en
+    question.es = input.es
+    question.en = input.en
     
     const filled_question = await connection.manager.save(question)
     
