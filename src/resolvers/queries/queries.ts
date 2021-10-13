@@ -1,5 +1,7 @@
+import { GetQuestionQuery } from "./getQuestion";
 import { GetQuestionsQuery } from "./getQuestions";
 
 export const Queries = [
-  GetQuestionsQuery
+  GetQuestionsQuery,
+  GetQuestionQuery
 ] as const
