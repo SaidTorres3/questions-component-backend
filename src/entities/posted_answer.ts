@@ -1,5 +1,5 @@
 import { Field, ObjectType, Int, ID } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, RelationId } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, RelationId, CreateDateColumn } from "typeorm";
 import { Answer } from "./answer";
 import { Question } from "./question";
 import { Respondent } from "./respondent";
@@ -35,4 +35,8 @@ export class Posted_Answer {
   respondent!: Respondent
   @RelationId("respondent")
   respondentUuid: Respondent['uuid']
+
+  @Field(type => Date, { nullable: false })
+  @CreateDateColumn()
+  createdAt!: Date;
 }

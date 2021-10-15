@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne, OneToMany, CreateDateColumn } from "typeorm";
 import { Answer } from "./answer";
 import { Posted_Answer } from "./posted_answer";
 
@@ -33,4 +33,8 @@ export class Question {
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, postedAnswer => postedAnswer.question, { nullable: true })
   posted_answers: Posted_Answer[];
+
+  @Field(type => Date, { nullable: false })
+  @CreateDateColumn()
+  createdAt!: Date;
 }

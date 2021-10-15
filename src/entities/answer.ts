@@ -1,6 +1,6 @@
 import GraphQLJSON from "graphql-type-json";
 import { Field, ObjectType, Int, ID } from "type-graphql";
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Index, OneToMany, CreateDateColumn } from "typeorm";
 import { Question } from "./question";
 import { Posted_Answer } from "./posted_answer";
 
@@ -35,4 +35,8 @@ export class Answer {
   @Field(type => String)
   @Column("text")
   en!: string;
+
+  @Field(type => Date, { nullable: false })
+  @CreateDateColumn()
+  createdAt!: Date;
 }
