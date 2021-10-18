@@ -40,7 +40,7 @@ export const Seed = async (connection: Connection) => {
     }
   }, connection)
 
-  let answer = await connection.manager.findOne(Answer, { where: { question: question_uuid.createdUuid }, relations: ["question"] })
+  let answer = await connection.manager.findOne(Answer, { where: { value: 2 }, relations: ["question"] })
 
   const postedAnswerCreator = new CreatePostedAnswerMutation()
   postedAnswerCreator.createPostedAnswers({
