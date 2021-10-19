@@ -18,8 +18,8 @@ class CreatePostedAnswerArgs {
 
 @ObjectType()
 class CreatePostedAnswerPayload {
-  @Field(type => String)
-  response!: string;
+  @Field(type => ID)
+  respondentUuid!: string;
 }
 
 @Resolver()
@@ -49,9 +49,8 @@ export class CreatePostedAnswerMutation {
       }
     }
     
-
     return {
-      response: "Answers posted sucessfully!"
+      respondentUuid: respondent.uuid
     };
   }
 }
