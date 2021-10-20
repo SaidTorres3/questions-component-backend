@@ -62,10 +62,10 @@ export class GetStatsQuery {
     averageScore = (averageScore / scores.length) * 100
     monthlyAverageScore = (monthlyAverageScore / monthlyScores.length) * 100
     return {
-      monthlyAverageScore,
-      averageScore,
-      questionsAmount,
-      respondentsAmount
+      monthlyAverageScore: Math.round(monthlyAverageScore),
+      averageScore: Math.round(averageScore),
+      questionsAmount: Math.round(questionsAmount),
+      respondentsAmount: Math.round(respondentsAmount)
     }
   }
 }
