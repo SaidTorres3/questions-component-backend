@@ -10,7 +10,7 @@ export const Seed = async (connection: Connection) => {
       imgUrl: "https://images.trvl-media.com/hotels/54000000/53720000/53714500/53714404/1316f078_z.jpg",
       es: "¿Cómo calificaría su experiencia en Hotel Palmeras? 🏨🌴",
       en: "How would you rate your experience in Hotel Palmeras? 🏨🌴",
-      answersParams: [
+      answers: [
         {
           "value": 5,
           "es": "Muy Buena 😀",

@@ -5,7 +5,7 @@ import { Answer } from "../../entities/answer";
 import { Question } from "../../entities/question";
 
 @InputType()
-abstract class AnswerInterface {
+abstract class CreateAnswerInput {
   @Field(type => GraphQLJSON)
   value: any;
   @Field(type => String)
@@ -25,8 +25,8 @@ class CreateQuestionInput {
   @Field(type => String)
   en: string
 
-  @Field(type => [AnswerInterface])
-  answersParams: AnswerInterface[]
+  @Field(type => [CreateAnswerInput])
+  answers: CreateAnswerInput[]
 }
 
 @ArgsType()
@@ -57,7 +57,7 @@ export class CreateQuestionMutation {
     
     const filled_question = await connection.manager.save(question)
     
-    for (const answerParams of input.answersParams) {
+    for (const answerParams of input.answers) {
       let answer = new Answer()
       answer.question = filled_question
       answer.value = answerParams.value
