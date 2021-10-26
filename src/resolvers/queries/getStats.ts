@@ -6,6 +6,14 @@ import { Question } from "../../entities/question";
 import { Respondent } from "../../entities/respondent";
 
 @ObjectType()
+class SelectedAnswersChart {
+  @Field(type => Int)
+  label: number;
+  @Field(type => Int)
+  count: number;
+}
+
+@ObjectType()
 class GetStatsPayload {
   @Field(type => Int)
   monthlyAverageScore: number
@@ -15,6 +23,8 @@ class GetStatsPayload {
   questionsAmount: number
   @Field(type => Int)
   respondentsAmount: number
+  @Field(type => [SelectedAnswersChart])
+  selectedAnswersChart: SelectedAnswersChart[]
 }
 
 @Resolver()
@@ -26,46 +36,70 @@ export class GetStatsQuery {
     const postedAnswers = await connection.manager.find(Posted_Answer, { relations: ["answer"] })
     const respondentsAmount = await connection.manager.count(Respondent)
     const questionsAmount = await connection.manager.count(Question)
-    let monthlyScores: number[] = [];
     const today = new Date()
 
-    let scores = await Promise.all(
-      postedAnswers.map(async (postedAnswer) => {
-        const answer = await connection.manager.findOneOrFail(Answer, { where: { uuid: postedAnswer.answer.uuid }, relations: ["question"] })
-        if (typeof answer.value === 'number') {
-          const [answers, numberOfAnswersInQuestion] = await connection.manager.findAndCount(Answer, { where: { question: answer.question } })
-          const score = answer.value / numberOfAnswersInQuestion
+    const numericValues: number[] = []
+    const scores: number[] = []
+    const monthlyScores: number[] = [];
+
+    for (let postedAnswer of postedAnswers) {
+      const answer = await connection.manager.findOneOrFail(Answer, { where: { uuid: postedAnswer.answer.uuid }, relations: ["question"] })
+      if (typeof answer.value === 'number') {
+        const numberOfAnswersInQuestion = await connection.manager.count(Answer, { where: { question: answer.question } })
+        numericValues.push(answer.value)
+        const score = answer.value / numberOfAnswersInQuestion
+        if (score >= 0) {
+          scores.push(score)
           const timeDiff = today.getTime() - postedAnswer.createdAt.getTime()
           const daysDiff = timeDiff / (1000 * 3600 * 24)
-          if(daysDiff <= 30) {
+          if (daysDiff <= 30) {
             monthlyScores.push(score)
           }
-
-          return score
         }
-        return -1
-      })
-    )
-
-    scores = scores.filter(score => score >= 0)
+      }
+    }
 
     let averageScore = 0;
     for (const score of scores) {
       averageScore += score
     }
-    
+    averageScore = (averageScore / scores.length) * 100
+
     let monthlyAverageScore = 0;
     for (const monthlyScore of monthlyScores) {
       monthlyAverageScore += monthlyScore
     }
-
-    averageScore = (averageScore / scores.length) * 100
     monthlyAverageScore = (monthlyAverageScore / monthlyScores.length) * 100
+
+    const getSelectedValues = (numericValues: number[]) => {
+      // sort numericValues in ascending order
+      numericValues.sort((a, b) => a - b)
+      const selectedValues: SelectedAnswersChart[] = []
+      // return unique values of numericValues and their counts
+      for (let i = 0; i < numericValues.length; i++) {
+        let label = numericValues[i]
+        let count = 1
+        for (let j = i + 1; j < numericValues.length; j++) {
+          if (numericValues[j] === label) {
+            count++
+            numericValues.splice(j, 1)
+            j--
+          }
+        }
+        selectedValues.push({ label, count })
+      }
+
+      return selectedValues
+    }
+    const selectedAnswersChart = getSelectedValues(numericValues)
+    console.log(selectedAnswersChart)
+
     return {
       monthlyAverageScore: Math.round(monthlyAverageScore),
       averageScore: Math.round(averageScore),
       questionsAmount: Math.round(questionsAmount),
-      respondentsAmount: Math.round(respondentsAmount)
+      respondentsAmount: Math.round(respondentsAmount),
+      selectedAnswersChart
     }
   }
 }
