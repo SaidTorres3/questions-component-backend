@@ -2,6 +2,7 @@ import { Connection } from "typeorm"
 import { Answer } from "./entities/answer"
 import { CreateQuestionMutation } from "./resolvers/mutations/createQuestion"
 import { CreatePostedAnswerMutation } from "./resolvers/mutations/createPostedAnswers"
+import { Respondent } from "./entities/respondent"
 
 export const Seed = async (connection: Connection) => {
   const question_creator = new CreateQuestionMutation()
@@ -40,12 +41,16 @@ export const Seed = async (connection: Connection) => {
     }
   }, connection)
 
-  let answer = await connection.manager.findOne(Answer, { where: { value: 2 }, relations: ["question"] })
+  let answer = await connection.manager.findOneOrFail(Answer, { where: { value: 2 }, relations: ["question"] })
 
   const postedAnswerCreator = new CreatePostedAnswerMutation()
-  postedAnswerCreator.createPostedAnswers({
+  const postedAnswerUuid = await postedAnswerCreator.createPostedAnswers({
     input: {
-      answersUuid: [answer!.uuid]
+      answersUuid: [answer.uuid]
     }
   }, connection)
+
+  const respondent = await connection.manager.findOneOrFail(Respondent, { where: { uuid: postedAnswerUuid.respondentUuid }})
+  respondent.createdAt = new Date("2021-06-03T10:00:00.000Z")
+  await connection.manager.save(Respondent, respondent)
 }

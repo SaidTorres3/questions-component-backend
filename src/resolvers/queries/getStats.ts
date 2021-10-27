@@ -7,10 +7,20 @@ import { Respondent } from "../../entities/respondent";
 
 @ObjectType()
 class SelectedAnswersChart {
+  @Field(type => [String])
+  labels: string[];
+  @Field(type => [Int])
+  count: number[];
   @Field(type => Int)
-  label: number;
+  hightestCount: number;
+}
+
+@ObjectType()
+class MonthlyAnswersChart {
+  @Field(type => [Int])
+  monthlyCount: number[];
   @Field(type => Int)
-  count: number;
+  hightestCount: number;  
 }
 
 @ObjectType()
@@ -23,8 +33,10 @@ class GetStatsPayload {
   questionsAmount: number
   @Field(type => Int)
   respondentsAmount: number
-  @Field(type => [SelectedAnswersChart])
-  selectedAnswersChart: SelectedAnswersChart[]
+  @Field(type => SelectedAnswersChart)
+  selectedAnswersChart: SelectedAnswersChart
+  @Field(type => MonthlyAnswersChart)
+  monthlyAnswersChart: MonthlyAnswersChart
 }
 
 @Resolver()
@@ -34,7 +46,7 @@ export class GetStatsQuery {
     @Ctx() connection: Connection
   ): Promise<GetStatsPayload> {
     const postedAnswers = await connection.manager.find(Posted_Answer, { relations: ["answer"] })
-    const respondentsAmount = await connection.manager.count(Respondent)
+    const [respondents, respondentsAmount] = await connection.manager.findAndCount(Respondent)
     const questionsAmount = await connection.manager.count(Question)
     const today = new Date()
 
@@ -63,18 +75,22 @@ export class GetStatsQuery {
     for (const score of scores) {
       averageScore += score
     }
-    averageScore = (averageScore / scores.length) * 100
+    if(averageScore) {
+      averageScore = (averageScore / scores.length) * 100
+    }
 
     let monthlyAverageScore = 0;
     for (const monthlyScore of monthlyScores) {
       monthlyAverageScore += monthlyScore
     }
-    monthlyAverageScore = (monthlyAverageScore / monthlyScores.length) * 100
+    if(monthlyAverageScore) {
+      monthlyAverageScore = (monthlyAverageScore / monthlyScores.length) * 100
+    }
 
     const getSelectedValues = (numericValues: number[]) => {
       // sort numericValues in ascending order
       numericValues.sort((a, b) => a - b)
-      const selectedValues: SelectedAnswersChart[] = []
+      const selectedValues: SelectedAnswersChart = { labels: [], count: [], hightestCount: 0 }
       // return unique values of numericValues and their counts
       for (let i = 0; i < numericValues.length; i++) {
         let label = numericValues[i]
@@ -86,20 +102,55 @@ export class GetStatsQuery {
             j--
           }
         }
-        selectedValues.push({ label, count })
+        selectedValues.labels.push(label.toString())
+        selectedValues.count.push(count)
       }
-
+      selectedValues.hightestCount = getHighestValue(selectedValues.count)
       return selectedValues
     }
     const selectedAnswersChart = getSelectedValues(numericValues)
-    console.log(selectedAnswersChart)
+
+    // function that recibes respondents and returns an array of counts for each month of the year
+    const getMonthlyCounts = (respondents: Respondent[]): MonthlyAnswersChart => {
+      const monthlyCount: number[] = []
+      const today = new Date()
+      const currentYear = today.getFullYear()
+      for (let i = 0; i < 12; i++) {
+        let count = 0
+        for (let j = 0; j < respondents.length; j++) {
+          const answer = respondents[j]
+          const answerDate = answer.createdAt
+          const answerMonth = answerDate.getMonth()
+          const answerYear = answerDate.getFullYear()
+          if (answerMonth === i && answerYear === currentYear) {
+            count++
+          }
+        }
+        monthlyCount.push(count)
+      }
+      const hightestCount = getHighestValue(monthlyCount)
+
+      return { monthlyCount, hightestCount }
+    }
+    const monthlyAnswersChart = getMonthlyCounts(respondents)
 
     return {
       monthlyAverageScore: Math.round(monthlyAverageScore),
       averageScore: Math.round(averageScore),
       questionsAmount: Math.round(questionsAmount),
       respondentsAmount: Math.round(respondentsAmount),
-      selectedAnswersChart
+      selectedAnswersChart,
+      monthlyAnswersChart
     }
   }
+}
+
+const getHighestValue = (array: number[]) => {
+  let highestValue = 0
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] > highestValue) {
+      highestValue = array[i]
+    }
+  }
+  return highestValue
 }
