@@ -3,6 +3,7 @@ import { Answer } from "./entities/answer"
 import { CreateQuestionMutation } from "./resolvers/mutations/createQuestion"
 import { CreatePostedAnswerMutation } from "./resolvers/mutations/createPostedAnswers"
 import { Respondent } from "./entities/respondent"
+import { Posted_Answer } from "./entities/posted_answer"
 
 export const Seed = async (connection: Connection) => {
   const question_creator = new CreateQuestionMutation()
@@ -44,13 +45,20 @@ export const Seed = async (connection: Connection) => {
   let answer = await connection.manager.findOneOrFail(Answer, { where: { value: 2 }, relations: ["question"] })
 
   const postedAnswerCreator = new CreatePostedAnswerMutation()
-  const postedAnswerUuid = await postedAnswerCreator.createPostedAnswers({
+  const postedAnswerPayload = await postedAnswerCreator.createPostedAnswers({
     input: {
       answersUuid: [answer.uuid]
     }
   }, connection)
 
-  const respondent = await connection.manager.findOneOrFail(Respondent, { where: { uuid: postedAnswerUuid.respondentUuid }})
-  respondent.createdAt = new Date("2021-06-03T10:00:00.000Z")
+  const June6th = new Date("2021-06-03T10:00:00.000Z")
+  const respondent = await connection.manager.findOneOrFail(Respondent, { where: { uuid: postedAnswerPayload.respondentUuid }})
+  const posted_answers = await connection.manager.find(Posted_Answer, { where: { respondent: postedAnswerPayload.respondentUuid }, relations: ["respondent"] })
+  respondent.createdAt = June6th
+  for (let posted_answer of posted_answers) {
+    posted_answer.createdAt = June6th
+    await connection.manager.save(Posted_Answer, posted_answer)
+  }
+
   await connection.manager.save(Respondent, respondent)
 }
