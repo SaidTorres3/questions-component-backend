@@ -30,9 +30,11 @@ class GetStatsPayload {
   @Field(type => Int)
   averageScore: number
   @Field(type => Int)
-  questionsAmount: number
-  @Field(type => Int)
   respondentsAmount: number
+  @Field(type => Int)
+  monthlyRespondentsAmount: number
+  @Field(type => Int)
+  questionsAmount: number
   @Field(type => SelectedAnswersChart)
   selectedAnswersChart: SelectedAnswersChart
   @Field(type => MonthlyAnswersChart)
@@ -111,39 +113,23 @@ export class GetStatsQuery {
     const selectedAnswersChart = getSelectedValues(numericValues)
 
     // function that recibes respondents and returns an array of counts for each month of the year
-    const getMonthlyCounts = (respondents: Respondent[]): MonthlyAnswersChart => {
-      const monthlyCount: number[] = []
-      const today = new Date()
-      const currentYear = today.getFullYear()
-      for (let i = 0; i < 12; i++) {
-        let count = 0
-        for (let j = 0; j < respondents.length; j++) {
-          const answer = respondents[j]
-          const answerDate = answer.createdAt
-          const answerMonth = answerDate.getMonth()
-          const answerYear = answerDate.getFullYear()
-          if (answerMonth === i && answerYear === currentYear) {
-            count++
-          }
-        }
-        monthlyCount.push(count)
-      }
-      const hightestCount = getHighestValue(monthlyCount)
 
-      return { monthlyCount, hightestCount }
-    }
-    const monthlyAnswersChart = getMonthlyCounts(respondents)
+    const monthlyAnswersChart = getAnswersMonthlyCounts(respondents)
+    const monthlyRespondentsAmount = getMonthlyRespondentsAmount(respondents)
 
     return {
       monthlyAverageScore: Math.round(monthlyAverageScore),
       averageScore: Math.round(averageScore),
       questionsAmount: Math.round(questionsAmount),
       respondentsAmount: Math.round(respondentsAmount),
+      monthlyRespondentsAmount: Math.round(monthlyRespondentsAmount),
       selectedAnswersChart,
       monthlyAnswersChart
     }
   }
 }
+
+// UTILIDADES
 
 const getHighestValue = (array: number[]) => {
   let highestValue = 0
@@ -154,3 +140,43 @@ const getHighestValue = (array: number[]) => {
   }
   return highestValue
 }
+
+const getAnswersMonthlyCounts = (respondents: Respondent[]): MonthlyAnswersChart => {
+  const monthlyCount: number[] = []
+  const today = new Date()
+  const currentYear = today.getFullYear()
+  for (let i = 0; i < 12; i++) {
+    let count = 0
+    for (let j = 0; j < respondents.length; j++) {
+      const answer = respondents[j]
+      const answerDate = answer.createdAt
+      const answerMonth = answerDate.getMonth()
+      const answerYear = answerDate.getFullYear()
+      if (answerMonth === i && answerYear === currentYear) {
+        count++
+      }
+    }
+    monthlyCount.push(count)
+  }
+  const hightestCount = getHighestValue(monthlyCount)
+
+  return { monthlyCount, hightestCount }
+}
+
+const getMonthlyRespondentsAmount = (respondents: Respondent[]): number => {
+  // return the number of respondents that answered the survey this month
+  const today = new Date()
+  const respondentsAmount = respondents.length
+  const respondentsThisMonth = []
+  for (let i = 0; i < respondentsAmount; i++) {
+    const respondent = respondents[i]
+    const respondentDate = respondent.createdAt
+    const respondentMonth = respondentDate.getMonth()
+    const respondentYear = respondentDate.getFullYear()
+    if (respondentMonth === today.getMonth() && respondentYear === today.getFullYear()) {
+      respondentsThisMonth.push(respondent)
+    }
+  }
+  return respondentsThisMonth.length
+}
+  
