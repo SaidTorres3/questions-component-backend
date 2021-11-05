@@ -16,7 +16,7 @@ export class Respondent {
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, posted_answer => posted_answer.respondent, {nullable: true})
   @JoinColumn({ referencedColumnName: "uuid" })
-  posted_answers: [Posted_Answer];
+  posted_answers: Posted_Answer[];
 
   @Field(type => Date, { nullable: false })
   @CreateDateColumn()

@@ -14,7 +14,6 @@ export class GetQuestionsQuery {
   async getQuestions(
     @Ctx() connection: Connection
   ): Promise<GetQuestionsPayload> {
-
     const questions = await connection.manager.find(Question)
     return {
       questions
