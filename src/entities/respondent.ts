@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, ID } from "type-graphql";
+import { Field, ObjectType, Int, ID, Float } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, JoinColumn, OneToMany, Column, Index, CreateDateColumn } from "typeorm";
 import { Posted_Answer } from "./posted_answer";
 
@@ -13,6 +13,10 @@ export class Respondent {
   @Column('uuid', { nullable: false, generated: 'uuid' })
   @Index('uuid', { unique: true })
   uuid!: string;
+
+  @Field(type => Float)
+  @Column('float', { nullable: true })
+  avgScore?: number;
 
   @Field(type => [Posted_Answer])
   @OneToMany(type => Posted_Answer, posted_answer => posted_answer.respondent, {nullable: true})

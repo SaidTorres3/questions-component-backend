@@ -31,11 +31,15 @@ export class CreatePostedAnswerMutation {
   ): Promise<CreatePostedAnswerPayload> {
     let respondent = new Respondent()
     respondent = await connection.manager.save(Respondent, respondent)
-    
+    const scoreList: number[] = []
+
     for (const answerUuid of input.answersUuid) {
       let posted_answer = new Posted_Answer()
-      const answer = await connection.manager.findOne(Answer, { where: { uuid: answerUuid }, relations: ["question"] })
+      const answer = await connection.manager.findOneOrFail(Answer, { where: { uuid: answerUuid }, relations: ["question"] })
       if (answer) {
+        if (typeof answer.value === 'number') {
+          scoreList.push(answer.value)
+        }
         posted_answer.answer = answer
         posted_answer.question = answer.question
         posted_answer.respondent = respondent
@@ -48,7 +52,10 @@ export class CreatePostedAnswerMutation {
         await connection.manager.save(Respondent, respondent)
       }
     }
-    
+
+    respondent.avgScore = (scoreList.reduce((a, b) => a + b, 0) / scoreList.length)||undefined
+    await connection.manager.save(Respondent, respondent)
+
     return {
       respondentUuid: respondent.uuid
     };
