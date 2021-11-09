@@ -1,6 +1,7 @@
 import { GetQuestionQuery } from "./getQuestion";
 import { GetQuestionsQuery } from "./getQuestions";
 import { GetQuestionStatsQuery } from "./getQuestionStats";
+import { GetRespondent } from "./getRespondent";
 import { GetRespondents } from "./getRespondents";
 import { GetStatsQuery } from "./getStats";
 
@@ -9,5 +10,6 @@ export const Queries = [
   GetQuestionQuery,
   GetStatsQuery,
   GetQuestionStatsQuery,
-  GetRespondents
+  GetRespondents,
+  GetRespondent
 ] as const

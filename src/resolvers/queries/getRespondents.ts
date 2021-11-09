@@ -15,6 +15,10 @@ export class GetRespondents {
     @Ctx() connection: Connection
   ): Promise<GetRespondentsPayload> {
     const respondents = await connection.manager.find(Respondent);
+    // sort respondents by date, descending order
+    respondents.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
     return {
       respondents
     };

@@ -5,6 +5,7 @@ import { Posted_Answer } from "./posted_answer";
 @ObjectType()
 @Entity()
 export class Respondent {
+  @Field(type => ID)
   @PrimaryGeneratedColumn()
   id!: number;
 
