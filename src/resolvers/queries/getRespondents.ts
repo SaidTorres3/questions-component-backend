@@ -1,26 +1,50 @@
-import { Ctx, Field, ObjectType, Query, Resolver } from "type-graphql";
+import { Args, ArgsType, Ctx, Field, InputType, Maybe, ObjectType, Query, registerEnumType, Resolver } from "type-graphql";
 import { Connection } from "typeorm";
 import { Respondent } from "../../entities/respondent";
+import { PaginatedPayload, PaginationArgs } from "./args/pagination";
+import { SortInput } from "./args/sort";
 
 @ObjectType()
-class GetRespondentsPayload {
-  @Field(() => [Respondent])
-  respondents: Respondent[];
+class GetRespondentsPayload extends PaginatedPayload(Respondent) { }
+
+enum GetRespondentsSortBy {
+  createdAt = "respondents.createdAt",
+}
+registerEnumType(GetRespondentsSortBy, { name: "GetRespondentsSortBy" })
+
+@InputType()
+class GetRespondentsSortInput extends SortInput(GetRespondentsSortBy) { }
+
+@InputType()
+class GetRespondentsFilterInput {
+  @Field(type => String, { nullable: true })
+  nameSearch: Maybe<string>;
+}
+@ArgsType()
+class GetRespondentsArgs {
+  @Field(type => GetRespondentsSortInput, { nullable: true })
+  sort: Maybe<GetRespondentsSortInput>;
+
+  @Field(type => GetRespondentsFilterInput, { nullable: true })
+  filter: Maybe<GetRespondentsFilterInput>;
 }
 
 @Resolver()
 export class GetRespondents {
   @Query(type => GetRespondentsPayload)
   async getRespondents(
-    @Ctx() connection: Connection
+    @Ctx() connection: Connection,
+    @Args() { skip, take }: PaginationArgs,
+    @Args() { sort, filter }: GetRespondentsArgs,
   ): Promise<GetRespondentsPayload> {
-    const respondents = await connection.manager.find(Respondent);
-    // sort respondents by date, descending order
-    respondents.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    const [respondents, total] = await connection.manager.findAndCount(Respondent, { order: { createdAt: sort?.direction }, take, skip });
+
     return {
-      respondents
+      items: respondents,
+      hasMore: (skip + take) < total,
+      skip,
+      take,
+      total
     };
   }
 }
