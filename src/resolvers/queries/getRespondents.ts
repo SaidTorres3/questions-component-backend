@@ -9,6 +9,7 @@ class GetRespondentsPayload extends PaginatedPayload(Respondent) { }
 
 enum GetRespondentsSortBy {
   createdAt = "respondents.createdAt",
+  id = "respondents.id",
 }
 registerEnumType(GetRespondentsSortBy, { name: "GetRespondentsSortBy" })
 
@@ -37,7 +38,10 @@ export class GetRespondents {
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetRespondentsArgs,
   ): Promise<GetRespondentsPayload> {
-    const [respondents, total] = await connection.manager.findAndCount(Respondent, { order: { createdAt: sort?.direction }, take, skip });
+    const [respondents, total] = await connection.manager.findAndCount(Respondent, { order: {
+      createdAt: sort ? (sort.by === GetRespondentsSortBy.createdAt ? sort.direction : undefined) : (undefined),
+      id: sort ? (sort.by === GetRespondentsSortBy.id ? sort.direction : undefined) : (undefined)
+    }, take, skip });
 
     return {
       items: respondents,
