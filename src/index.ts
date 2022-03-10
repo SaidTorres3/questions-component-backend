@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ApolloServer } from 'apollo-server'
+import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { Entities } from "./entities/entities";
@@ -17,16 +17,18 @@ createConnection({
   dropSchema: true,
   entities: Entities,
   synchronize: true,
-  logging: false
-}).then(async connection => {
-  const schema = await buildSchema({
-    resolvers: Resolvers,
-  });
+  logging: false,
+})
+  .then(async (connection) => {
+    const schema = await buildSchema({
+      resolvers: Resolvers,
+    });
 
-  const server = new ApolloServer({ schema, context: connection });
-  server.listen().then(({ url }) => {
-    console.log(`🚀  Server ready at ${url}`);
-  });
+    const server = new ApolloServer({ schema, context: connection });
+    server.listen().then(({ url }) => {
+      console.log(`🚀  Server ready at ${url}`);
+    });
 
-  Seed(connection)
-}).catch(error => console.log(error));
+    Seed(connection);
+  })
+  .catch((error) => console.log(error));

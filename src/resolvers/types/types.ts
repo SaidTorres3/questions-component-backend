@@ -7,5 +7,5 @@ export const Types = [
   Question_Resolver,
   Posted_Answers_Resolver,
   Answer_Resolver,
-  Respondent_Resolver
-]
+  Respondent_Resolver,
+];

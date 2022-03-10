@@ -11,5 +11,5 @@ export const Queries = [
   GetStatsQuery,
   GetQuestionStatsQuery,
   GetRespondents,
-  GetRespondent
-] as const
+  GetRespondent,
+] as const;
