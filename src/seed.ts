@@ -1,8 +1,11 @@
 import { Connection } from "typeorm";
 import { CreateQuestionMutation } from "./resolvers/mutations/createQuestion";
+import { CreateUserMutation } from "./resolvers/mutations/createUser";
+import { UserType } from "./entities/user";
+
 export const Seed = async (connection: Connection) => {
   const question_creator = new CreateQuestionMutation();
-  const question_uuid = await question_creator.createQuestion(
+  await question_creator.createQuestion(
     {
       input: {
         imgUrl:
@@ -36,6 +39,18 @@ export const Seed = async (connection: Connection) => {
             en: "Very bad 😠",
           },
         ],
+      },
+    },
+    connection
+  );
+
+  const user_creator = new CreateUserMutation();
+  await user_creator.createUser(
+    {
+      input: {
+        username: "admin",
+        password: "admin",
+        type: UserType.admin,
       },
     },
     connection
