@@ -8,6 +8,7 @@ import {
 import { Connection } from "typeorm";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
+import { User } from "../../entities/user";
 
 @Resolver((of) => Respondent)
 export class Respondent_Resolver implements ResolverInterface<Respondent> {
@@ -21,5 +22,16 @@ export class Respondent_Resolver implements ResolverInterface<Respondent> {
       relations: ["respondent"],
     });
     return posted_answers;
+  }
+
+  async user(
+    @Root() root: Respondent,
+    @Ctx() connection: Connection
+  ) {
+    const user = await connection.manager.findOneOrFail(User, {
+      where: { uuid: root.user.uuid },
+      relations: ["respondents"],
+    });
+    return user;
   }
 }

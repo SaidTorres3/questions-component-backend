@@ -46,10 +46,8 @@ export class CreateUserMutation {
     user.username = input.username;
     user.type = input.type;
 
-    console.log("Hashing password...");
     const password = bcrypt.hashSync(input.password);
     user.password = password;
-    console.log(password);
 
     const filled_User = await connection.manager.save(user);
 

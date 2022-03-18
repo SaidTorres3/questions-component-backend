@@ -5,7 +5,10 @@ import {
   PrimaryGeneratedColumn,
   Index,
   CreateDateColumn,
+  OneToMany,
+  JoinColumn,
 } from "typeorm";
+import { Respondent } from "./respondent";
 
 @ObjectType()
 @Entity()
@@ -33,6 +36,15 @@ export class User {
   @Field((type) => String)
   @Column("text")
   type!: UserType;
+
+  @Field((type) => [Respondent])
+  @OneToMany(
+    (type) => Respondent,
+    (respondent) => respondent,
+    { nullable: true }
+  )
+  @JoinColumn({ referencedColumnName: "uuid" })
+  respondents: Respondent[];
 }
 
 @ObjectType()

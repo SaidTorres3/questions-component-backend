@@ -1,6 +1,7 @@
 import {
   Args,
   ArgsType,
+  createUnionType,
   Ctx,
   Field,
   ID,
@@ -30,24 +31,41 @@ class LoginUserArgs {
 }
 
 @ObjectType()
-class LoginUserPayload {
+class LoginUserPayloadSuccess {
   @Field((type) => ID, { nullable: false })
   token!: string;
+
+  @Field((type) => User)
+  user!: User;
 }
+
+@ObjectType()
+class LoginUserPayloadFail {
+  @Field((type) => String)
+  message!: string;
+}
+
+const LoginUserPayload = createUnionType({
+  name: "LoginUserPayload",
+  types: () => [LoginUserPayloadSuccess, LoginUserPayloadFail]
+})
 
 @Resolver()
 export class LoginUserMutation {
-  @Mutation((type) => LoginUserPayload, { nullable: false })
+  @Mutation((type) => LoginUserPayload, { nullable: true })
   async LoginUser(
     @Args() { input }: LoginUserArgs,
     @Ctx() connection: Connection
-  ): Promise<LoginUserPayload> {
+  ): Promise<typeof LoginUserPayload> {
     const user = await connection.manager.findOne(User, {
       where: { username: input.username },
     });
 
+    const failMsg = new LoginUserPayloadFail()
+    failMsg.message = "Couldn't log in"
+
     if (!user) {
-      return { token: "" };
+      return failMsg
     }
 
     const isCorrectPassword = await bcrypt.compare(
@@ -55,14 +73,20 @@ export class LoginUserMutation {
       user.password
     );
 
+    if (!isCorrectPassword) {
+      return failMsg
+    }
+
     let token: string;
     isCorrectPassword
       ? (token = generateToken({ userUuid: user.uuid, userType: user.type }))
       : (token = "");
 
-    return {
-      token,
-    };
+    const successMsg = new LoginUserPayloadSuccess()
+    successMsg.token = token
+    successMsg.user = user
+
+    return successMsg
   }
 }
 
@@ -77,7 +101,7 @@ const generateToken = (opts: {
     return "";
   }
   const token = jtw.sign({ userUuid: opts.userUuid }, process.env.SECRET, {
-    expiresIn: opts.userType === UserType.pollster ? "2y" : "30m",
+    expiresIn: opts.userType === UserType.pollster ? "2y" : "45m",
   });
   return token;
 };

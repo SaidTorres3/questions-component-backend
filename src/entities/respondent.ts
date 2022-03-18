@@ -7,8 +7,10 @@ import {
   Column,
   Index,
   CreateDateColumn,
+  OneToOne,
 } from "typeorm";
 import { Posted_Answer } from "./posted_answer";
+import { User } from "./user";
 
 @ObjectType()
 @Entity()
@@ -22,6 +24,10 @@ export class Respondent {
   @Index("uuid", { unique: true })
   uuid!: string;
 
+  @Field((type) => Date, { nullable: false })
+  @CreateDateColumn()
+  createdAt!: Date;
+
   @Field((type) => Float)
   @Column("float", { nullable: true })
   avgScore?: number;
@@ -33,9 +39,10 @@ export class Respondent {
     { nullable: true }
   )
   @JoinColumn({ referencedColumnName: "uuid" })
-  posted_answers: Posted_Answer[];
+  posted_answers!: Posted_Answer[];
 
-  @Field((type) => Date, { nullable: false })
-  @CreateDateColumn()
-  createdAt!: Date;
+  @Field((type) => User)
+  @OneToOne((type) => User, (user) => user.respondents, { nullable: true })
+  @JoinColumn({ referencedColumnName: "uuid" })
+  user!: User;
 }

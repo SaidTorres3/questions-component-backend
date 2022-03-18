@@ -40,6 +40,7 @@ export class GetUser {
     const user = await connection.manager.findOneOrFail(User, {
       where: { uuid: input.userUuid },
     });
+    
     return {
       user,
     };

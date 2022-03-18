@@ -13,11 +13,15 @@ import { Connection } from "typeorm";
 import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
+import { User } from "../../entities/user";
 
 @InputType()
 class CreatePostedAnswerInput {
-  @Field((type) => [ID], { nullable: true })
+  @Field((type) => [ID])
   answersUuid: string[];
+
+  @Field((type) => ID)
+  userUuid: string;
 }
 
 @ArgsType()
@@ -68,6 +72,11 @@ export class CreatePostedAnswerMutation {
 
     respondent.avgScore =
       scoreList.reduce((a, b) => a + b, 0) / scoreList.length || undefined;
+      
+    respondent.user = await connection.manager.findOneOrFail(User, {
+      where: { uuid: input.userUuid },
+    });
+
     await connection.manager.save(Respondent, respondent);
 
     return {
