@@ -53,18 +53,17 @@ const LoginUserPayload = createUnionType({
 @Resolver()
 export class LoginUserMutation {
   @Mutation((type) => LoginUserPayload, { nullable: true })
-  async LoginUser(
+  async loginUser(
     @Args() { input }: LoginUserArgs,
     @Ctx() connection: Connection
   ): Promise<typeof LoginUserPayload> {
     const user = await connection.manager.findOne(User, {
       where: { username: input.username },
     });
-
     const failMsg = new LoginUserPayloadFail()
     failMsg.message = "Couldn't log in"
-
     if (!user) {
+      console.log("No user")
       return failMsg
     }
 
