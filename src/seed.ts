@@ -55,4 +55,15 @@ export const Seed = async (connection: Connection) => {
     },
     connection
   );
+
+  await user_creator.createUser(
+    {
+      input: {
+        username: "poller",
+        password: "poller",
+        type: UserType.pollster,
+      },
+    },
+    connection
+  );
 };

@@ -72,11 +72,9 @@ export class CreatePostedAnswerMutation {
 
     respondent.avgScore =
       scoreList.reduce((a, b) => a + b, 0) / scoreList.length || undefined;
-      
     respondent.user = await connection.manager.findOneOrFail(User, {
       where: { uuid: input.userUuid },
     });
-
     await connection.manager.save(Respondent, respondent);
 
     return {

@@ -8,6 +8,7 @@ import {
   Index,
   CreateDateColumn,
   OneToOne,
+  ManyToOne,
 } from "typeorm";
 import { Posted_Answer } from "./posted_answer";
 import { User } from "./user";
@@ -42,7 +43,7 @@ export class Respondent {
   posted_answers!: Posted_Answer[];
 
   @Field((type) => User)
-  @OneToOne((type) => User, (user) => user.respondents, { nullable: true })
+  @ManyToOne((type) => User, (user) => user.respondents, { nullable: true })
   @JoinColumn({ referencedColumnName: "uuid" })
   user!: User;
 }

@@ -13,9 +13,9 @@ import { Respondent } from "../../entities/respondent";
 export class User_Resolver implements ResolverInterface<User> {
   @FieldResolver()
   async respondents(@Root() root: User, @Ctx() connection: Connection) {
-    const respondent = await connection.manager.find(Respondent, {
-      where: { user: root },
+    const respondents = await connection.manager.find(Respondent, {
+      where: { user: { uuid: root.uuid } },
     });
-    return respondent;
+    return respondents;
   }
 }

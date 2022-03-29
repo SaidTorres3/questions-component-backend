@@ -37,7 +37,7 @@ export class User {
   @Column("text")
   type!: UserType;
 
-  @Field((type) => [Respondent])
+  @Field((type) => [Respondent], { nullable: true })
   @OneToMany(
     (type) => Respondent,
     (respondent) => respondent,

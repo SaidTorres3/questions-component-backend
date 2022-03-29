@@ -49,25 +49,22 @@ export class GetUsers {
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetUsersArgs
   ): Promise<GetUsersPayload> {
-    const [users, total] = await connection.manager.findAndCount(
-      User,
-      {
-        order: {
-          createdAt: sort
-            ? sort.by === GetUsersSortBy.createdAt
-              ? sort.direction
-              : undefined
-            : undefined,
-          id: sort
-            ? sort.by === GetUsersSortBy.id
-              ? sort.direction
-              : undefined
-            : undefined,
-        },
-        take,
-        skip,
-      }
-    );
+    const [users, total] = await connection.manager.findAndCount(User, {
+      order: {
+        createdAt: sort
+          ? sort.by === GetUsersSortBy.createdAt
+            ? sort.direction
+            : undefined
+          : undefined,
+        id: sort
+          ? sort.by === GetUsersSortBy.id
+            ? sort.direction
+            : undefined
+          : undefined,
+      },
+      take,
+      skip,
+    });
 
     return {
       items: users,

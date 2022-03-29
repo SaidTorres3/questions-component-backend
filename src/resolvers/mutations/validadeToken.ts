@@ -53,10 +53,9 @@ export class ValidadeTokenMutation {
     @Args() { input }: ValidadeTokenArgs,
     @Ctx() connection: Connection
   ): Promise<typeof ValidadeTokenPayload> {
-    const decode = jtw.decode(input.token, { json: true }) as test;
     const fail_msg = new ValidadeTokenPayloadFail();
     fail_msg.message = "Error msg";
-
+    
     if (!process.env.SECRET) {
       console.error(
         "No secret found, please, add a SECRET in the .env file. E.g. SECRET=mysecret"
@@ -64,9 +63,13 @@ export class ValidadeTokenMutation {
       return fail_msg;
     }
 
+    const decode = jtw.decode(input.token, { json: true }) as test;
+    if (!decode) {
+      return fail_msg;
+    }
+
     try {
       const a = jtw.verify(input.token, process.env.SECRET);
-      console.log(a);
     } catch (e) {}
 
     const user = await connection.manager.findOne(User, {

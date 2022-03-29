@@ -5,6 +5,8 @@ import { createConnection } from "typeorm";
 import { Entities } from "./entities/entities";
 import { Resolvers } from "./resolvers/resolvers";
 import { Seed } from "./seed";
+// import express from "express";
+// import { express as voyagerMiddleware } from "graphql-voyager/middleware";
 
 createConnection({
   type: "mysql",
@@ -26,9 +28,15 @@ createConnection({
 
     const server = new ApolloServer({ schema, context: connection });
     server.listen().then(({ url }) => {
-      console.log(`🚀  Server ready at ${url}`);
+      console.log(`🚀 Server ready at ${url}`);
     });
 
     Seed(connection);
   })
   .catch((error) => console.log(error));
+
+// const app = express();
+// app.use("/voyager", voyagerMiddleware({ endpointUrl: "http://192.168.1.90:4000/" }));
+// app.listen(4001, () => {
+//   console.log("server started on port 4000");
+// });
