@@ -5,7 +5,7 @@ import {
   ResolverInterface,
   Root,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "../../index"
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
 import { User } from "../../entities/user";
@@ -15,9 +15,9 @@ export class Respondent_Resolver implements ResolverInterface<Respondent> {
   @FieldResolver()
   async posted_answers(
     @Root() root: Respondent,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ) {
-    const posted_answers = await connection.manager.find(Posted_Answer, {
+    const posted_answers = await context.connection.manager.find(Posted_Answer, {
       where: { respondent: root },
       relations: ["respondent"],
     });
@@ -26,9 +26,9 @@ export class Respondent_Resolver implements ResolverInterface<Respondent> {
 
   async user(
     @Root() root: Respondent,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ) {
-    const user = await connection.manager.findOneOrFail(User, {
+    const user = await context.connection.manager.findOneOrFail(User, {
       where: { uuid: root.user.uuid },
       relations: ["respondents"],
     });

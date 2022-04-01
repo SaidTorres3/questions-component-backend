@@ -10,7 +10,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { User, UserType } from "../../entities/user";
 import * as bcrypt from "bcryptjs";
 import jtw from "jsonwebtoken";
@@ -55,9 +55,9 @@ export class LoginUserMutation {
   @Mutation((type) => LoginUserPayload, { nullable: true })
   async loginUser(
     @Args() { input }: LoginUserArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<typeof LoginUserPayload> {
-    const user = await connection.manager.findOne(User, {
+    const user = await context.connection.manager.findOne(User, {
       where: { username: input.username },
     });
     const failMsg = new LoginUserPayloadFail()

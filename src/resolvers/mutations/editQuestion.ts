@@ -12,7 +12,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Answer } from "../../entities/answer";
 import { Question } from "../../entities/question";
 
@@ -61,9 +61,9 @@ export class EditQuestionMutation {
   @Mutation((type) => EditQuestionPayload, { nullable: false })
   async editQuestion(
     @Args() { input }: EditQuestionArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<EditQuestionPayload> {
-    let question = await connection.manager.findOneOrFail(Question, {
+    let question = await context.connection.manager.findOneOrFail(Question, {
       where: { uuid: input.uuid },
     });
     input.imgUrl ? (question.imgUrl = input.imgUrl) : undefined;
@@ -71,14 +71,14 @@ export class EditQuestionMutation {
     input.en ? (question.en = input.en) : undefined;
 
     for (const questionAnswer of input.answers) {
-      const answer = await connection.manager.findOneOrFail(Answer, {
+      const answer = await context.connection.manager.findOneOrFail(Answer, {
         where: { uuid: questionAnswer.uuid },
       });
       answer.es ? (answer.es = questionAnswer.es) : undefined;
       answer.en ? (answer.en = questionAnswer.en) : undefined;
-      await connection.manager.save(answer);
+      await context.connection.manager.save(answer);
     }
-    await connection.manager.save(question);
+    await context.connection.manager.save(question);
 
     return { questionUuid: question.uuid };
   }

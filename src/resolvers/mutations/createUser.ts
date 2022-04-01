@@ -9,7 +9,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { User, UserType } from "../../entities/user";
 import * as bcrypt from "bcryptjs";
 
@@ -40,7 +40,7 @@ export class CreateUserMutation {
   @Mutation((type) => CreateUserPayload, { nullable: false })
   async createUser(
     @Args() { input }: CreateUserArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<CreateUserPayload> {
     let user = new User();
     user.username = input.username;
@@ -49,7 +49,7 @@ export class CreateUserMutation {
     const password = bcrypt.hashSync(input.password);
     user.password = password;
 
-    const filled_User = await connection.manager.save(user);
+    const filled_User = await context.connection.manager.save(user);
 
     return { createdUuid: filled_User.uuid };
   }

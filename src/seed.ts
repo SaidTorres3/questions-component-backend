@@ -1,9 +1,9 @@
-import { Connection } from "typeorm";
+import { Context } from "./index";
 import { CreateQuestionMutation } from "./resolvers/mutations/createQuestion";
 import { CreateUserMutation } from "./resolvers/mutations/createUser";
 import { UserType } from "./entities/user";
 
-export const Seed = async (connection: Connection) => {
+export const Seed = async (context: Context) => {
   const question_creator = new CreateQuestionMutation();
   await question_creator.createQuestion(
     {
@@ -41,7 +41,7 @@ export const Seed = async (connection: Connection) => {
         ],
       },
     },
-    connection
+    context
   );
 
   const user_creator = new CreateUserMutation();
@@ -53,7 +53,7 @@ export const Seed = async (connection: Connection) => {
         type: UserType.admin,
       },
     },
-    connection
+    context
   );
 
   await user_creator.createUser(
@@ -64,6 +64,6 @@ export const Seed = async (connection: Connection) => {
         type: UserType.pollster,
       },
     },
-    connection
+    context
   );
 };

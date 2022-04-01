@@ -9,7 +9,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "../..";
 import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
@@ -41,15 +41,15 @@ export class CreatePostedAnswerMutation {
   @Mutation((type) => CreatePostedAnswerPayload, { nullable: false })
   async createPostedAnswers(
     @Args() { input }: CreatePostedAnswerArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<CreatePostedAnswerPayload> {
     let respondent = new Respondent();
-    respondent = await connection.manager.save(Respondent, respondent);
+    respondent = await context.connection.manager.save(Respondent, respondent);
     const scoreList: number[] = [];
 
     for (const answerUuid of input.answersUuid) {
       let posted_answer = new Posted_Answer();
-      const answer = await connection.manager.findOneOrFail(Answer, {
+      const answer = await context.connection.manager.findOneOrFail(Answer, {
         where: { uuid: answerUuid },
         relations: ["question"],
       });
@@ -60,22 +60,22 @@ export class CreatePostedAnswerMutation {
         posted_answer.answer = answer;
         posted_answer.question = answer.question;
         posted_answer.respondent = respondent;
-        posted_answer = await connection.manager.save(posted_answer);
+        posted_answer = await context.connection.manager.save(posted_answer);
         if (respondent.posted_answers) {
           respondent.posted_answers.push(posted_answer);
         } else {
           respondent.posted_answers = [posted_answer];
         }
-        await connection.manager.save(Respondent, respondent);
+        await context.connection.manager.save(Respondent, respondent);
       }
     }
 
     respondent.avgScore =
       scoreList.reduce((a, b) => a + b, 0) / scoreList.length || undefined;
-    respondent.user = await connection.manager.findOneOrFail(User, {
+    respondent.user = await context.connection.manager.findOneOrFail(User, {
       where: { uuid: input.userUuid },
     });
-    await connection.manager.save(Respondent, respondent);
+    await context.connection.manager.save(Respondent, respondent);
 
     return {
       respondentUuid: respondent.uuid,

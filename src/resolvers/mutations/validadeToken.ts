@@ -10,7 +10,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { User, UserType } from "../../entities/user";
 import * as bcrypt from "bcryptjs";
 import jtw from "jsonwebtoken";
@@ -51,7 +51,7 @@ export class ValidadeTokenMutation {
   @Mutation((type) => ValidadeTokenPayload, { nullable: true })
   async validadeToken(
     @Args() { input }: ValidadeTokenArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<typeof ValidadeTokenPayload> {
     const fail_msg = new ValidadeTokenPayloadFail();
     fail_msg.message = "Error msg";
@@ -72,7 +72,7 @@ export class ValidadeTokenMutation {
       const a = jtw.verify(input.token, process.env.SECRET);
     } catch (e) {}
 
-    const user = await connection.manager.findOne(User, {
+    const user = await context.connection.manager.findOne(User, {
       where: { uuid: decode.userUuid },
     });
     if (!user) {

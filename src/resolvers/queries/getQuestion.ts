@@ -9,7 +9,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Question } from "../../entities/question";
 
 @InputType()
@@ -34,10 +34,10 @@ class GetQuestionPayload {
 export class GetQuestionQuery {
   @Query((type) => GetQuestionPayload)
   async getQuestion(
-    @Ctx() connection: Connection,
+    @Ctx() context: Context,
     @Args() { input }: CreateQuestionArgs
   ): Promise<GetQuestionPayload> {
-    const question = await connection.manager.findOneOrFail(Question, {
+    const question = await context.connection.manager.findOneOrFail(Question, {
       where: { uuid: input.questionUuid },
     });
     return {

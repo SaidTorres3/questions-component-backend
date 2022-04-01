@@ -10,7 +10,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "../../index";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
 
@@ -49,9 +49,9 @@ export class GetQuestionStatsQuery {
   @Query((type) => GetQuestionStatsPayload)
   async getQuestionStats(
     @Args() { input }: GetQuestionStatsArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<GetQuestionStatsPayload> {
-    const question: Question = await connection.manager.findOneOrFail(
+    const question: Question = await context.connection.manager.findOneOrFail(
       Question,
       { where: { uuid: input.questionUuid }, relations: ["answers"] }
     );
@@ -64,7 +64,7 @@ export class GetQuestionStatsQuery {
       }
     }
 
-    const posted_answers = await connection.manager.find(Posted_Answer, {
+    const posted_answers = await context.connection.manager.find(Posted_Answer, {
       where: { question: question },
       relations: ["question", "answer"],
     });

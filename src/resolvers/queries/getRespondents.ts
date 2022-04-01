@@ -10,7 +10,7 @@ import {
   registerEnumType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Respondent } from "../../entities/respondent";
 import { PaginatedPayload, PaginationArgs } from "./args/pagination";
 import { SortInput } from "./args/sort";
@@ -45,11 +45,11 @@ class GetRespondentsArgs {
 export class GetRespondents {
   @Query((type) => GetRespondentsPayload)
   async getRespondents(
-    @Ctx() connection: Connection,
+    @Ctx() context: Context,
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetRespondentsArgs
   ): Promise<GetRespondentsPayload> {
-    const [respondents, total] = await connection.manager.findAndCount(
+    const [respondents, total] = await context.connection.manager.findAndCount(
       Respondent,
       {
         order: {

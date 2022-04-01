@@ -12,7 +12,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Answer } from "../../entities/answer";
 import { Question } from "../../entities/question";
 
@@ -58,7 +58,7 @@ export class CreateQuestionMutation {
   @Mutation((type) => CreateQuestionPayload, { nullable: false })
   async createQuestion(
     @Args() { input }: CreateQuestionArgs,
-    @Ctx() connection: Connection
+    @Ctx() context: Context
   ): Promise<CreateQuestionPayload> {
     let question = new Question();
     if (input.imgUrl) {
@@ -67,7 +67,7 @@ export class CreateQuestionMutation {
     question.es = input.es;
     question.en = input.en;
 
-    const filled_question = await connection.manager.save(question);
+    const filled_question = await context.connection.manager.save(question);
 
     for (const answerParams of input.answers) {
       let answer = new Answer();
@@ -75,7 +75,7 @@ export class CreateQuestionMutation {
       answer.value = answerParams.value;
       answer.es = answerParams.es;
       answer.en = answerParams.en;
-      await connection.manager.save(answer);
+      await context.connection.manager.save(answer);
     }
 
     return { createdUuid: filled_question.uuid };

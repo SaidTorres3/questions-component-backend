@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
-import { createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 import { Entities } from "./entities/entities";
 import { Resolvers } from "./resolvers/resolvers";
 import { Seed } from "./seed";
@@ -26,14 +26,32 @@ createConnection({
       resolvers: Resolvers,
     });
 
-    const server = new ApolloServer({ schema, context: connection });
+    const server = new ApolloServer({
+      schema,
+      context: ({ req }) => {
+        const token = req.headers.authorization
+        return {
+          token,
+          connection,
+        }
+      },
+    });
+
     server.listen().then(({ url }) => {
       console.log(`🚀 Server ready at ${url}`);
     });
 
-    Seed(connection);
+    Seed({
+      connection,
+      token: "",
+    });
   })
   .catch((error) => console.log(error));
+
+export interface Context {
+  token: string;
+  connection: Connection;
+}
 
 // const app = express();
 // app.use("/voyager", voyagerMiddleware({ endpointUrl: "http://192.168.1.90:4000/" }));

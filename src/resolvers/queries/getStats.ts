@@ -1,5 +1,5 @@
 import { Ctx, Field, Int, ObjectType, Query, Resolver } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
@@ -44,15 +44,15 @@ class GetStatsPayload {
 @Resolver()
 export class GetStatsQuery {
   @Query((type) => GetStatsPayload)
-  async getStats(@Ctx() connection: Connection): Promise<GetStatsPayload> {
-    const postedAnswers = await connection.manager.find(Posted_Answer, {
+  async getStats(@Ctx() context: Context): Promise<GetStatsPayload> {
+    const postedAnswers = await context.connection.manager.find(Posted_Answer, {
       relations: ["answer"],
     });
     const [
       respondents,
       respondentsAmount,
-    ] = await connection.manager.findAndCount(Respondent);
-    const questionsAmount = await connection.manager.count(Question);
+    ] = await context.connection.manager.findAndCount(Respondent);
+    const questionsAmount = await context.connection.manager.count(Question);
     const today = new Date();
 
     const numericValues: number[] = [];
@@ -60,12 +60,12 @@ export class GetStatsQuery {
     const monthlyScores: number[] = [];
 
     for (let postedAnswer of postedAnswers) {
-      const answer = await connection.manager.findOneOrFail(Answer, {
+      const answer = await context.connection.manager.findOneOrFail(Answer, {
         where: { uuid: postedAnswer.answer.uuid },
         relations: ["question"],
       });
       if (typeof answer.value === "number") {
-        const numberOfAnswersInQuestion = await connection.manager.count(
+        const numberOfAnswersInQuestion = await context.connection.manager.count(
           Answer,
           { where: { question: answer.question } }
         );

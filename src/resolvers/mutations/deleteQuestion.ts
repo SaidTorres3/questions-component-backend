@@ -10,7 +10,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "../../index";
 import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
@@ -37,17 +37,17 @@ class DeleteQuestionPayload {
 export class DeleteQuestionMutation {
   @Mutation((type) => DeleteQuestionPayload)
   async deleteQuestion(
-    @Ctx() connection: Connection,
+    @Ctx() context: Context,
     @Args() { input }: DeleteQuestionArgs
   ): Promise<DeleteQuestionPayload> {
-    const question = await connection.manager.findOneOrFail(Question, {
+    const question = await context.connection.manager.findOneOrFail(Question, {
       where: { uuid: input.questionUuid },
       relations: ["answers", "posted_answers"],
     });
 
-    await connection.manager.remove(Posted_Answer, question.posted_answers);
-    await connection.manager.remove(Answer, question.answers);
-    await connection.manager.remove(Question, question);
+    await context.connection.manager.remove(Posted_Answer, question.posted_answers);
+    await context.connection.manager.remove(Answer, question.answers);
+    await context.connection.manager.remove(Question, question);
 
     return {
       deletedUuid: question.uuid,

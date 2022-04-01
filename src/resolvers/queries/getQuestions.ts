@@ -10,7 +10,7 @@ import {
   registerEnumType,
   Resolver,
 } from "type-graphql";
-import { Connection } from "typeorm";
+import { Context } from "./../../index";
 import { Question } from "../../entities/question";
 import { PaginatedPayload, PaginationArgs } from "./args/pagination";
 import { SortInput } from "./args/sort";
@@ -45,11 +45,11 @@ class GetQuestionsPayload extends PaginatedPayload(Question) {}
 export class GetQuestionsQuery {
   @Query((type) => GetQuestionsPayload)
   async getQuestions(
-    @Ctx() connection: Connection,
+    @Ctx() context: Context,
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetQuestionsArgs
   ): Promise<GetQuestionsPayload> {
-    const [items, total] = await connection.manager.findAndCount(Question, {
+    const [items, total] = await context.connection.manager.findAndCount(Question, {
       take: take,
       skip: skip,
       order: { createdAt: sort?.direction },
