@@ -5,6 +5,7 @@ import { DeleteQuestionMutation } from "./deleteQuestion";
 import { CreateUserMutation } from "./createUser";
 import { LoginUserMutation } from "./loginUser";
 import { ValidadeTokenMutation } from "./validadeToken";
+import { DeleteRespondentMutation } from "./deleteRespondent";
 
 export const Mutations = [
   CreateQuestionMutation,
@@ -13,5 +14,6 @@ export const Mutations = [
   DeleteQuestionMutation,
   CreateUserMutation,
   LoginUserMutation,
-  ValidadeTokenMutation
+  ValidadeTokenMutation,
+  DeleteRespondentMutation
 ] as const;

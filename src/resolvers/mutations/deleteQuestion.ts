@@ -54,5 +54,3 @@ export class DeleteQuestionMutation {
     };
   }
 }
-
-// why doesnt apper in graphql playground? R:
