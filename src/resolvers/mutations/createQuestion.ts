@@ -15,6 +15,8 @@ import {
 import { Context } from "./../../index";
 import { Answer } from "../../entities/answer";
 import { Question } from "../../entities/question";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 abstract class CreateAnswerInput {
@@ -60,6 +62,11 @@ export class CreateQuestionMutation {
     @Args() { input }: CreateQuestionArgs,
     @Ctx() context: Context
   ): Promise<CreateQuestionPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     let question = new Question();
     if (input.imgUrl) {
       question.imgUrl = input.imgUrl;

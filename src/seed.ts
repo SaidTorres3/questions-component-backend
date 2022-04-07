@@ -4,6 +4,20 @@ import { CreateUserMutation } from "./resolvers/mutations/createUser";
 import { UserType } from "./entities/user";
 
 export const Seed = async (context: Context) => {
+  // use context.connection.manager.save(...) to generate an admin and then log in.
+  const user_creator = new CreateUserMutation();
+
+  await user_creator.createUser(
+    {
+      input: {
+        username: "poller",
+        password: "poller",
+        type: UserType.pollster,
+      },
+    },
+    context
+  );
+
   const question_creator = new CreateQuestionMutation();
   await question_creator.createQuestion(
     {
@@ -39,29 +53,6 @@ export const Seed = async (context: Context) => {
             en: "Very bad 😠",
           },
         ],
-      },
-    },
-    context
-  );
-
-  const user_creator = new CreateUserMutation();
-  await user_creator.createUser(
-    {
-      input: {
-        username: "admin",
-        password: "admin",
-        type: UserType.admin,
-      },
-    },
-    context
-  );
-
-  await user_creator.createUser(
-    {
-      input: {
-        username: "poller",
-        password: "poller",
-        type: UserType.pollster,
       },
     },
     context

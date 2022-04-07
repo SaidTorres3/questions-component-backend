@@ -10,10 +10,11 @@ import {
   registerEnumType,
   Resolver,
 } from "type-graphql";
-import { Context } from "./../../index"
-import { User } from "../../entities/user";
+import { Context } from "./../../index";
+import { User, UserType } from "../../entities/user";
 import { PaginatedPayload, PaginationArgs } from "./args/pagination";
 import { SortInput } from "./args/sort";
+import autorizate from "../autorizate";
 
 @ObjectType()
 class GetUsersPayload extends PaginatedPayload(User) {}
@@ -49,6 +50,11 @@ export class GetUsers {
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetUsersArgs
   ): Promise<GetUsersPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     const [users, total] = await context.connection.manager.findAndCount(User, {
       order: {
         createdAt: sort

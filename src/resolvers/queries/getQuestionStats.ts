@@ -13,6 +13,8 @@ import {
 import { Context } from "../../index";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 class GetQuestionStatsInput {
@@ -51,6 +53,11 @@ export class GetQuestionStatsQuery {
     @Args() { input }: GetQuestionStatsArgs,
     @Ctx() context: Context
   ): Promise<GetQuestionStatsPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     const question: Question = await context.connection.manager.findOneOrFail(
       Question,
       { where: { uuid: input.questionUuid }, relations: ["answers"] }
@@ -64,10 +71,13 @@ export class GetQuestionStatsQuery {
       }
     }
 
-    const posted_answers = await context.connection.manager.find(Posted_Answer, {
-      where: { question: question },
-      relations: ["question", "answer"],
-    });
+    const posted_answers = await context.connection.manager.find(
+      Posted_Answer,
+      {
+        where: { question: question },
+        relations: ["question", "answer"],
+      }
+    );
 
     const getSelectedValues = (numericValues: number[]) => {
       // sort numericValues in ascending order

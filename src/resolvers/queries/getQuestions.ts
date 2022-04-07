@@ -14,6 +14,12 @@ import { Context } from "./../../index";
 import { Question } from "../../entities/question";
 import { PaginatedPayload, PaginationArgs } from "./args/pagination";
 import { SortInput } from "./args/sort";
+import {
+  ValidadeTokenPayloadSuccess,
+  ValidadeTokenPayloadFail,
+} from "../mutations/validadeToken";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 enum GetQuestionsSortBy {
   createdAt = "questions.createdAt",
@@ -49,11 +55,19 @@ export class GetQuestionsQuery {
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetQuestionsArgs
   ): Promise<GetQuestionsPayload> {
-    const [items, total] = await context.connection.manager.findAndCount(Question, {
-      take: take,
-      skip: skip,
-      order: { createdAt: sort?.direction },
-    });
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation) {
+      throw new Error("Unauthorized");
+    }
+
+    const [items, total] = await context.connection.manager.findAndCount(
+      Question,
+      {
+        take: take,
+        skip: skip,
+        order: { createdAt: sort?.direction },
+      }
+    );
 
     return {
       items,

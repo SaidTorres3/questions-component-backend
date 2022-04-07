@@ -11,6 +11,8 @@ import {
 } from "type-graphql";
 import { Context } from "./../../index";
 import { Respondent } from "../../entities/respondent";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 class GetRespondentInput {
@@ -37,9 +39,17 @@ export class GetRespondent {
     @Ctx() context: Context,
     @Args() { input }: GetRespondentArgs
   ): Promise<GetRespondentPayload> {
-    const respondent = await context.connection.manager.findOneOrFail(Respondent, {
-      where: { uuid: input.respondentUuid },
-    });
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
+    const respondent = await context.connection.manager.findOneOrFail(
+      Respondent,
+      {
+        where: { uuid: input.respondentUuid },
+      }
+    );
     return {
       respondent,
     };

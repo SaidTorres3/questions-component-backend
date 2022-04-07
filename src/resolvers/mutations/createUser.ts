@@ -12,6 +12,7 @@ import {
 import { Context } from "./../../index";
 import { User, UserType } from "../../entities/user";
 import * as bcrypt from "bcryptjs";
+import autorizate from "../autorizate";
 
 @InputType()
 class CreateUserInput {
@@ -42,6 +43,11 @@ export class CreateUserMutation {
     @Args() { input }: CreateUserArgs,
     @Ctx() context: Context
   ): Promise<CreateUserPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     let user = new User();
     user.username = input.username;
     user.type = input.type;

@@ -14,6 +14,8 @@ import { Context } from "../../index";
 import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 class DeleteQuestionInput {
@@ -40,12 +42,20 @@ export class DeleteQuestionMutation {
     @Ctx() context: Context,
     @Args() { input }: DeleteQuestionArgs
   ): Promise<DeleteQuestionPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     const question = await context.connection.manager.findOneOrFail(Question, {
       where: { uuid: input.questionUuid },
       relations: ["answers", "posted_answers"],
     });
 
-    await context.connection.manager.remove(Posted_Answer, question.posted_answers);
+    await context.connection.manager.remove(
+      Posted_Answer,
+      question.posted_answers
+    );
     await context.connection.manager.remove(Answer, question.answers);
     await context.connection.manager.remove(Question, question);
 

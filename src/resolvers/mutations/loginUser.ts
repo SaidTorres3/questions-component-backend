@@ -31,7 +31,7 @@ class LoginUserArgs {
 }
 
 @ObjectType()
-class LoginUserPayloadSuccess {
+export class LoginUserPayloadSuccess {
   @Field((type) => ID, { nullable: false })
   token!: string;
 
@@ -40,7 +40,7 @@ class LoginUserPayloadSuccess {
 }
 
 @ObjectType()
-class LoginUserPayloadFail {
+export class LoginUserPayloadFail {
   @Field((type) => String)
   message!: string;
 }

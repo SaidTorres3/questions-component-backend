@@ -15,6 +15,8 @@ import {
 import { Context } from "./../../index";
 import { Answer } from "../../entities/answer";
 import { Question } from "../../entities/question";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 abstract class EditAnswerInput {
@@ -63,6 +65,11 @@ export class EditQuestionMutation {
     @Args() { input }: EditQuestionArgs,
     @Ctx() context: Context
   ): Promise<EditQuestionPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
+
     let question = await context.connection.manager.findOneOrFail(Question, {
       where: { uuid: input.uuid },
     });

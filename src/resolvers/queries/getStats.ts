@@ -4,6 +4,8 @@ import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Question } from "../../entities/question";
 import { Respondent } from "../../entities/respondent";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @ObjectType()
 class SelectedAnswersChart {
@@ -45,6 +47,10 @@ class GetStatsPayload {
 export class GetStatsQuery {
   @Query((type) => GetStatsPayload)
   async getStats(@Ctx() context: Context): Promise<GetStatsPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
     const postedAnswers = await context.connection.manager.find(Posted_Answer, {
       relations: ["answer"],
     });

@@ -12,6 +12,8 @@ import {
 } from "type-graphql";
 import { Context } from "../../index";
 import { Respondent } from "../../entities/respondent";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @InputType()
 class DeleteRespondentInput {
@@ -38,15 +40,23 @@ export class DeleteRespondentMutation {
     @Ctx() context: Context,
     @Args() { input }: DeleteRespondentArgs
   ): Promise<DeleteRespondentPayload> {
-    const respondent = await context.connection.manager.findOneOrFail(Respondent, {
-      where: { uuid: input.respondentUuid },
-      relations: ["posted_answers"],
-    });
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
 
-    for(const posted_answer of respondent.posted_answers) {
+    const respondent = await context.connection.manager.findOneOrFail(
+      Respondent,
+      {
+        where: { uuid: input.respondentUuid },
+        relations: ["posted_answers"],
+      }
+    );
+
+    for (const posted_answer of respondent.posted_answers) {
       await context.connection.manager.remove(posted_answer);
     }
-    
+
     await context.connection.manager.remove(Respondent, respondent);
 
     return {

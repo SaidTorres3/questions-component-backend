@@ -14,6 +14,7 @@ import { Answer } from "../../entities/answer";
 import { Posted_Answer } from "../../entities/posted_answer";
 import { Respondent } from "../../entities/respondent";
 import { User } from "../../entities/user";
+import autorizate from "../autorizate";
 
 @InputType()
 class CreatePostedAnswerInput {
@@ -43,6 +44,11 @@ export class CreatePostedAnswerMutation {
     @Args() { input }: CreatePostedAnswerArgs,
     @Ctx() context: Context
   ): Promise<CreatePostedAnswerPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation) {
+      throw new Error("Unauthorized");
+    }
+
     let respondent = new Respondent();
     respondent = await context.connection.manager.save(Respondent, respondent);
     const scoreList: number[] = [];
@@ -70,7 +76,7 @@ export class CreatePostedAnswerMutation {
       }
     }
 
-    respondent.avgScore =
+    respondent.avgScore = // To improve
       scoreList.reduce((a, b) => a + b, 0) / scoreList.length || undefined;
     respondent.user = await context.connection.manager.findOneOrFail(User, {
       where: { uuid: input.userUuid },

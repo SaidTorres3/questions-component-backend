@@ -14,6 +14,8 @@ import { Context } from "./../../index";
 import { Respondent } from "../../entities/respondent";
 import { PaginatedPayload, PaginationArgs } from "./args/pagination";
 import { SortInput } from "./args/sort";
+import autorizate from "../autorizate";
+import { UserType } from "../../entities/user";
 
 @ObjectType()
 class GetRespondentsPayload extends PaginatedPayload(Respondent) {}
@@ -49,6 +51,10 @@ export class GetRespondents {
     @Args() { skip, take }: PaginationArgs,
     @Args() { sort, filter }: GetRespondentsArgs
   ): Promise<GetRespondentsPayload> {
+    const autorizationValidation = await autorizate({ context });
+    if (!autorizationValidation || autorizationValidation !== UserType.admin) {
+      throw new Error("Unauthorized");
+    }
     const [respondents, total] = await context.connection.manager.findAndCount(
       Respondent,
       {

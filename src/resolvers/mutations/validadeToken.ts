@@ -30,13 +30,13 @@ class ValidadeTokenArgs {
 }
 
 @ObjectType()
-class ValidadeTokenPayloadSuccess {
+export class ValidadeTokenPayloadSuccess {
   @Field((type) => User)
   user!: User;
 }
 
 @ObjectType()
-class ValidadeTokenPayloadFail {
+export class ValidadeTokenPayloadFail {
   @Field((type) => String)
   message!: string;
 }
@@ -55,7 +55,7 @@ export class ValidadeTokenMutation {
   ): Promise<typeof ValidadeTokenPayload> {
     const fail_msg = new ValidadeTokenPayloadFail();
     fail_msg.message = "Error msg";
-    
+
     if (!process.env.SECRET) {
       console.error(
         "No secret found, please, add a SECRET in the .env file. E.g. SECRET=mysecret"
@@ -63,18 +63,15 @@ export class ValidadeTokenMutation {
       return fail_msg;
     }
 
-    const decode = jtw.decode(input.token, { json: true }) as test;
-    if (!decode) {
+    const decoded_password = jtw.decode(input.token, { json: true }) as TokenResponse;
+    if (!decoded_password) {
       return fail_msg;
     }
 
-    try {
-      const a = jtw.verify(input.token, process.env.SECRET);
-    } catch (e) {}
-
     const user = await context.connection.manager.findOne(User, {
-      where: { uuid: decode.userUuid },
+      where: { uuid: decoded_password.userUuid },
     });
+    
     if (!user) {
       return fail_msg;
     }
@@ -85,7 +82,7 @@ export class ValidadeTokenMutation {
   }
 }
 
-interface test {
+interface TokenResponse {
   userUuid: string;
-  userType: string;
+  userType: UserType;
 }
