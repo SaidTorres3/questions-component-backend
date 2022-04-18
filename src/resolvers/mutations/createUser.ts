@@ -11,8 +11,8 @@ import {
 } from "type-graphql";
 import { Context } from "./../../index";
 import { User, UserType } from "../../entities/user";
-import * as bcrypt from "bcryptjs";
 import autorizate from "../autorizate";
+import { hashPassword } from "../../utils/hashPassword";
 
 @InputType()
 class CreateUserInput {
@@ -52,7 +52,7 @@ export class CreateUserMutation {
     user.username = input.username;
     user.type = input.type;
 
-    const password = bcrypt.hashSync(input.password);
+    const password = await hashPassword(input.password);
     user.password = password;
 
     const filled_User = await context.connection.manager.save(user);
