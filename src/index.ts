@@ -15,13 +15,13 @@ import {
 // import { express as voyagerMiddleware } from "graphql-voyager/middleware";
 
 createConnection({
-  type: "mysql",
-  host: "localhost",
-  port: 3306,
-  username: "root",
-  password: "",
+  type: (process.env.DB_TYPE as any) || "mysql",
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) || 3306 : 3306,
+  username: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_DATABASE || "questions_component",
   charset: "utf8mb4",
-  database: "questions_component",
   dropSchema: true,
   entities: Entities,
   synchronize: true,
@@ -48,7 +48,9 @@ createConnection({
     });
 
     const token = await generateAdmin(connection);
-    if (!token) { throw new Error("Couldn't generate admin token") }
+    if (!token) {
+      throw new Error("Couldn't generate admin token");
+    }
     Seed({
       connection,
       token,

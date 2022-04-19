@@ -63,7 +63,6 @@ export class LoginUserMutation {
     const failMsg = new LoginUserPayloadFail()
     failMsg.message = "Couldn't log in"
     if (!user) {
-      console.log("No user")
       return failMsg
     }
 
